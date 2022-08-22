@@ -29,7 +29,7 @@ class MusicianModelTest(TestCase):
 
         for field in char_fields:
             with self.subTest(f"{field} max_length"):
-                self.assertEqual(Musician._meta.get_field(field).max_length, 64)
+                self.assertEqual(Musician._meta.get_field(field).max_length, 63)
 
     def test_str_method(self):
         musician = Musician.objects.get(first_name="Joseph")

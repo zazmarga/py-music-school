@@ -1,5 +1,3 @@
-import datetime
-
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
@@ -15,13 +13,13 @@ MUSICIAN_URL = reverse("musician:manage-list")
 class MusicianApiTests(TestCase):
     def setUp(self) -> None:
         self.client = APIClient()
-        Musician.objects.create(
+        self.first_musician = Musician.objects.create(
             first_name="Joseph",
             last_name="Green",
             instrument="the guitar",
             age=17,
         )
-        Musician.objects.create(
+        self.second_musician = Musician.objects.create(
             first_name="Robert",
             last_name="Brown",
             instrument="the guitar",
@@ -63,17 +61,8 @@ class MusicianApiTests(TestCase):
         self.assertEqual(db_musicians.filter(first_name="Bob").count(), 1)
 
     def test_get_musician(self):
-        response = self.client.get(f"{MUSICIAN_URL}1/")
-        serializer = MusicianSerializer(
-            Musician(
-                id=1,
-                first_name="Joseph",
-                last_name="Green",
-                instrument="the guitar",
-                age=17,
-                date_of_applying=datetime.date.today(),
-            )
-        )
+        response = self.client.get(f"{MUSICIAN_URL}{self.first_musician.id}/")
+        serializer = MusicianSerializer(self.first_musician)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
         self.assertIn("is_adult", response.data)
@@ -103,6 +92,18 @@ class MusicianApiTests(TestCase):
             ],
         )
 
+    def test_put_invalid_musician(self):
+        response = self.client.put(
+            f"{MUSICIAN_URL}50/",
+            {
+                "first_name": "Bob",
+                "last_name": "Smith",
+                "instrument": "the violin",
+                "age": 22,
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_patch_musician(self):
         response = self.client.patch(
             f"{MUSICIAN_URL}1/",
@@ -113,6 +114,15 @@ class MusicianApiTests(TestCase):
         db_musician = Musician.objects.get(id=1)
         self.assertEqual(db_musician.first_name, "Leyla")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_patch_invalid_musician(self):
+        response = self.client.patch(
+            f"{MUSICIAN_URL}50/",
+            {
+                "first_name": "Leyla",
+            },
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete_musician(self):
         response = self.client.delete(
