@@ -31,7 +31,7 @@ class MusicianApiTests(TestCase):
             "first_name": "Jim",
             "last_name": "Greg",
             "instrument": "the violin",
-            "age": 10
+            "age": 10,
         }
 
         response = self.client.post(MUSICIAN_URL, payload)
@@ -52,7 +52,7 @@ class MusicianApiTests(TestCase):
                 "first_name": "Bob",
                 "last_name": "Yellow",
                 "instrument": "the guitar",
-                "age": 47
+                "age": 47,
             },
         )
         db_musicians = Musician.objects.all()
@@ -83,13 +83,13 @@ class MusicianApiTests(TestCase):
         )
         db_musician = Musician.objects.get(id=1)
         self.assertEqual(
-            [db_musician.first_name, db_musician.last_name, db_musician.instrument, db_musician.age],
             [
-                "Bob",
-                "Smith",
-                "the violin",
-                22
+                db_musician.first_name,
+                db_musician.last_name,
+                db_musician.instrument,
+                db_musician.age,
             ],
+            ["Bob", "Smith", "the violin", 22],
         )
 
     def test_put_invalid_musician(self):
